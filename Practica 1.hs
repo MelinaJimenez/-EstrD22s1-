@@ -141,18 +141,21 @@ supera	_		_	= False
 
 
 cantidadDePokemonDe:: TipoDePokemon -> Entrenador -> Int
-cantidadDePokemonDe t (E n p1 p2) = sumaUnoSiEsIgual t (tipo p1) + sumaUnoSiEsIgual t (tipo p2)
-									
-sumaUnoSiEsIgual :: TipoDePokemon -> TipoDePokemon -> Int
-sumaUnoSiEsIgual Agua Agua     = 1
-sumaUnoSiEsIgual Fuego Fuego   = 1
-sumaUnoSiEsIgual Planta Planta = 1
-sumaUnoSiEsIgual   _      _    = 0
+cantidadDePokemonDe t (E n p1 p2) = sumaUno (mismoTipo t (tipo p1)) + sumaUno (mismoTipo t (tipo p2))
+				
+sumaUno :: Bool -> Int
+sumaUno True  = 1
+sumaUno False = 0			
+				
+mismoTipo :: TipoDePokemon -> TipoDePokemon -> Bool
+mismoTipo Agua Agua     = True
+mismoTipo Fuego Fuego   = True
+mismoTipo Planta Planta = True
+mismoTipo  _    _       = False
 
 
 juntarPokemon :: (Entrenador,Entrenador) -> [Pokemon]
-juntarPokemon (e1, e2) = devolverTodosLosPokemon e1 ++
-						  devolverTodosLosPokemon e2
+juntarPokemon (e1, e2) = devolverTodosLosPokemon e1 ++  devolverTodosLosPokemon e2
 						  
 						  
 devolverTodosLosPokemon ::Entrenador -> [Pokemon]
