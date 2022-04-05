@@ -19,6 +19,7 @@ maxDelPar (x,y) = if x>y
 --TIPOS ENUMERATIVOS
 
 data Dir = Norte|Sur|Este|Oeste
+        deriving Show
 
 opuesto :: Dir -> Dir
 opuesto Norte = Sur
@@ -45,6 +46,7 @@ siguiente Oeste = Norte
 
 
 data DiaDeSemana = Lunes|Martes|Miercoles|Jueves|Viernes|Sabado|Domingo
+    deriving Show
 
 primeroYUltimoDia :: (DiaDeSemana,DiaDeSemana)
 primeroYUltimoDia = (Lunes,Domingo)
@@ -117,9 +119,13 @@ laQueEsMayor p1 p2 = if (esMayorQueLaOtra p1 p2)
 						else p2
 						
 data TipoDePokemon = Agua|Fuego|Planta
-data Pokemon       = P TipoDePokemon Int
-data Entrenador    = E String Pokemon Pokemon
+     deriving Show
 
+data Pokemon       = P TipoDePokemon Int
+     deriving Show
+     
+data Entrenador    = E String Pokemon Pokemon
+     deriving Show
 
 superaA :: Pokemon -> Pokemon -> Bool
 superaA p1 p2 = supera (tipo p1) (tipo p2)
