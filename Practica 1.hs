@@ -96,14 +96,14 @@ or  _   b = b
 data Persona = P String Int
 
 nombre :: Persona -> String
-nombre P n _ = n
+nombre (P n _) = n
 
 edad : Persona -> Int
-edad P _ e = e
+edad (P _ e) = e
 
 
 crecer :: Persona -> Persona
-crecer P n e = P n (e+1)
+crecer (P n e )= P n (e+1)
 
 cambioDeNombre :: String -> Persona -> Persona
 cambioDeNombre x (P n e) = P x e
@@ -125,7 +125,7 @@ superaA :: Pokemon -> Pokemon -> Bool
 superaA p1 p2 = supera (tipo p1) (tipo p2)
 
 tipo :: Pokemon -> TipoDePokemon
-tipo P t _  = t
+tipo (P t _)  = t
 
 supera :: TipoDePokemon -> TipoDePokemon -> Bool
 supera Agua Fuego   = True
@@ -146,12 +146,12 @@ sumaUnoSiEsIgual   _      _    = 0
 
 
 juntarPokemon :: (Entrenador,Entrenador) -> [Pokemon]
-juntarPokemon (e1, e2) }= devolverTodosLosPokemon e1 ++
+juntarPokemon (e1, e2) = devolverTodosLosPokemon e1 ++
 						  devolverTodosLosPokemon e2
 						  
 						  
 devolverTodosLosPokemon ::Entrenador -> [Pokemon]
-devolverTodosLosPokemon E _ p1 p2 = p1 : p2 : []
+devolverTodosLosPokemon (E _ p1 p2) = p1 : p2 : []
 
 
 --FUNCIONES POLIMORFICAS
