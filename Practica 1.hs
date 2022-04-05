@@ -141,8 +141,7 @@ supera	_		_	= False
 
 
 cantidadDePokemonDe:: TipoDePokemon -> Entrenador -> Int
-cantidadDePokemonDe t (E n p1 p2) = sumaUnoSiEsIgual t (tipo p1) +
-									sumaUnoSiEsIgual t (tipo p2)
+cantidadDePokemonDe t (E n p1 p2) = sumaUnoSiEsIgual t (tipo p1) + sumaUnoSiEsIgual t (tipo p2)
 									
 sumaUnoSiEsIgual :: TipoDePokemon -> TipoDePokemon -> Int
 sumaUnoSiEsIgual Agua Agua     = 1
@@ -184,7 +183,7 @@ elPrimero (x:xs) = x
 
 
 sinElPrimero :: [a] -> [a]
-sinElPrimero []     = []
+sinElPrimero []     = error "esta vacia"
 sinElPrimero (x:xs) = xs
 
 
