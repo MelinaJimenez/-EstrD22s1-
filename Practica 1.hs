@@ -141,11 +141,11 @@ supera	_		_	= False
 
 
 cantidadDePokemonDe:: TipoDePokemon -> Entrenador -> Int
-cantidadDePokemonDe t (E n p1 p2) = sumaUno (mismoTipo t (tipo p1)) + sumaUno (mismoTipo t (tipo p2))
+cantidadDePokemonDe t (E n p1 p2) = unoSi (mismoTipo t (tipo p1)) + unoSi (mismoTipo t (tipo p2))
 				
-sumaUno :: Bool -> Int
-sumaUno True  = 1
-sumaUno False = 0			
+unoSi :: Bool -> Int
+unoSi True  = 1
+unoSi False = 0			
 				
 mismoTipo :: TipoDePokemon -> TipoDePokemon -> Bool
 mismoTipo Agua Agua     = True
