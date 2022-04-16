@@ -24,7 +24,7 @@ disyuncion (x : xs) = x || disyuncion xs
 
 aplanar :: [[a]] -> [a]
 aplanar []       = []
-aplanar (x : xs) = agregar x (aplanar xs)
+aplanar (x : xss) = agregar x (aplanar xss)
 
 pertenece :: Eq a => a -> [a] -> Bool
 pertenece e []     = False
@@ -33,9 +33,8 @@ pertenece e (x:xs) = x == e || pertenece e xs
 apariciones :: Eq a => a -> [a] -> Int
 apariciones e []     = 0
 apariciones e (x:xs) = if e == x 
-
                         then 1 + apariciones e xs
-                        else 0 + apariciones e xs
+                        else apariciones e xs
 
 losMenoresA :: Int -> [Int] -> [Int]
 losMenoresA n []     = []
@@ -56,7 +55,7 @@ agregarAlFinal (x:xs) e = x : agregarAlFinal xs e
 agregar :: [a] -> [a] -> [a]
 agregar [] ys     = ys
 agregar xs []     = xs
-agregar (x:xs) ys = x : concatenar xs ys
+agregar (x:xs) ys = x : agregar xs ys
 
 reversa :: [a] -> [a]
 reversa []     = []
@@ -90,9 +89,10 @@ repetir 0 e = []
 repetir n e = e : repetir (n-1) e
 
 losPrimeros :: Int -> [a] -> [a]
-losPrimeros n (x:xs) = if n /= 0
-                        then x : losPrimeros (n-1) xs
-                        else []
+losPrimeros _ [] = []
+losPrimeros 0 xs =[]
+losPrimeros n (x : xs) = x : losPrimeros (n-1) xs
+
 
 sinLosPrimeros :: Int -> [a] -> [a]
 sinLosPrimeros n []     = []
@@ -137,16 +137,17 @@ cantPokemonDe:: TipoDePokemon -> Entrenador -> Int
 cantPokemonDe tipo (ConsEntrenador _ ps) = cantPokemones tipo ps
 
 cantPokemones:: TipoDePokemon -> [Pokemon] -> Int
-cantPokemones tipo (x:xs) = unoSi(sonIguales tipo (tipoDe x)) + cantPokemones tipo xs
+cantPokemones tipo (x:xs) = unoSi(mismoTipo tipo (tipoDe x)) + cantPokemones tipo xs
 
 unoSi:: Bool -> Int
 unoSi True  = 1
 unoSi False = 0
 
-sonIguales:: TipoDePokemon -> TipoDePokemon -> Bool
-sonIguales Agua Agua    = True
-sonIguales Fuego Fuego  = True
-sonIguales Planta Planta= True
+mismoTipo:: TipoDePokemon -> TipoDePokemon -> Bool
+mismoTipo Agua Agua    = True
+mismoTipo Fuego Fuego  = True
+mismoTipo Planta Planta= True
+mismoTipo   _       _   = False
 
 tipoDe:: Pokemon -> TipoDePokemon
 tipoDe (ConsPokemon t n) = t
