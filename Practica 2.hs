@@ -24,7 +24,7 @@ disyuncion (x : xs) = x || disyuncion xs
 
 aplanar :: [[a]] -> [a]
 aplanar []       = []
-aplanar (x : xss) = agregar x (aplanar xss)
+aplanar (xs : xss) = agregar xs (aplanar xss)
 
 pertenece :: Eq a => a -> [a] -> Bool
 pertenece e []     = False
@@ -54,7 +54,6 @@ agregarAlFinal (x:xs) e = x : agregarAlFinal xs e
 
 agregar :: [a] -> [a] -> [a]
 agregar [] ys     = ys
-agregar xs []     = xs
 agregar (x:xs) ys = x : agregar xs ys
 
 reversa :: [a] -> [a]
@@ -95,11 +94,9 @@ losPrimeros n (x : xs) = x : losPrimeros (n-1) xs
 
 
 sinLosPrimeros :: Int -> [a] -> [a]
-sinLosPrimeros n []     = []
-sinLosPrimeros n (x:xs) = if n < 1
-                           then sinLosPrimeros (n-1) xs
-                           else xs
- 
+sinLosPrimeros _ [] = []
+sinLosPrimeros 0 xs = xs
+sinLosPrimeros n (x:xs) = sinLosPrimeros (n-1) xs
 ---------------------------Registros --------------
 
 data Persona = P String Int deriving Show 
@@ -134,10 +131,11 @@ cantPokemon:: Entrenador -> Int
 cantPokemon (ConsEntrenador _ pks) = longitud pks
 
 cantPokemonDe:: TipoDePokemon -> Entrenador -> Int
-cantPokemonDe tipo (ConsEntrenador _ ps) = cantPokemones tipo ps
+cantPokemonDe tipo (ConsEntrenador _ ps) =  cantPokemonDeMismoTipo tipo ps
 
-cantPokemones:: TipoDePokemon -> [Pokemon] -> Int
-cantPokemones tipo (x:xs) = unoSi(mismoTipo tipo (tipoDe x)) + cantPokemones tipo xs
+cantPokemonDeMismoTipo:: TipoDePokemon -> [Pokemon] -> Int
+cantPokemonDeMismoTipo tipo []     =  0
+cantPokemonDeMismoTipo tipo (p:ps) = unoSi(mismoTipo tipo (tipoDe p)) + cantPokemonDeMismoTipo tipo ps
 
 unoSi:: Bool -> Int
 unoSi True  = 1
@@ -169,35 +167,117 @@ superaA Fuego Planta = True
 superaA Planta Agua  = True
 superaA	_ _          = False
 
+
 esMaestroPokemon:: Entrenador -> Bool
-esMaestroPokemon (ConsEntrenador _ ps) = tieneTodosLosTipos ps
+esMaestroPokemon (ConsEntrenador _ ps) = perteneceA ps Agua && perteneceA ps Fuego && perteneceA ps Planta
 
-tieneTodosLosTipos:: [Pokemon] -> Bool
-tieneTodosLosTipos []  = True
-tieneTodosLosTipos pks = perteneceAgua pks && perteneceFuego pks && pertenecePlanta pks
-
-perteneceAgua:: [Pokemon] -> Bool
-perteneceAgua  []    = False
-perteneceAgua (x:xs) = esAgua (tipoDe x) || perteneceAgua xs
-
-esAgua:: TipoDePokemon -> Bool
-esAgua Agua = True
-esAgua _    = False
-
-perteneceFuego:: [Pokemon] -> Bool
-perteneceFuego  []    = False
-perteneceFuego (x:xs) = esFuego (tipoDe x) || perteneceAgua xs
-
-esFuego:: TipoDePokemon -> Bool
-esFuego Fuego = True
-esFuego _     = False
-
-pertenecePlanta:: [Pokemon] -> Bool
-pertenecePlanta  []    = False
-pertenecePlanta (x:xs) = esPlanta (tipoDe x) || perteneceAgua xs
-
-esPlanta:: TipoDePokemon -> Bool
-esPlanta Planta = True
-esPlanta _      = False
+perteneceA:: [Pokemon] -> TipoDePokemon -> Bool
+perteneceA  [] tipo= False
+perteneceA (x:xs) tipo = mismoTipo tipo (tipoDe x) || perteneceA xs tipo
 
 
+
+
+data Seniority = Junior | SemiSenior| Senior deriving Show
+data Proyecto  = ConsProyecto String deriving Show
+data Rol       = Developer Seniority Proyecto | Management Seniority Proyecto deriving Show
+data Empresa   = ConsEmpresa [Rol] deriving Show
+
+proyectos :: Empresa -> [Proyecto]
+proyectos (ConsEmpresa rs) = sinProyectosRepetidos(listaDeProyectos rs)
+
+listaDeProyectos :: [Rol] -> [Proyecto]
+listaDeProyectos []     = []
+listaDeProyectos (r:rs) = (proyectoDelRol r) : listaDeProyectos rs
+
+proyectoDelRol :: Rol -> Proyecto
+proyectoDelRol (Developer _ p)  = p
+proyectoDelRol (Management _ p) = p
+
+sinProyectosRepetidos:: [Proyecto] -> [Proyecto]
+sinProyectosRepetidos []     = []
+sinProyectosRepetidos (p:ps) = agregarSiHaceFalta p (sinProyectosRepetidos ps)
+
+agregarSiHaceFalta :: Proyecto -> [Proyecto]-> [Proyecto]
+agregarSiHaceFalta p ps = if perteneceP p ps		
+							then ps
+							else p:ps
+
+perteneceP :: Proyecto -> [Proyecto] -> Bool
+perteneceP p []     = False
+perteneceP p (x:xs) = sonIguales x p || perteneceP p xs
+
+sonIguales:: Proyecto -> Proyecto -> Bool
+sonIguales (ConsProyecto p1) (ConsProyecto p2) = p1==p2
+
+-------------------------
+losDevSenior :: Empresa -> [Proyecto] -> Int
+losDevSenior empresa ps= losQueTrabajanCon (totalDev empresa) ps
+
+totalDev :: Empresa ->  [Rol]
+totalDev (ConsEmpresa rs)= todosLosDev rs
+
+todosLosDev :: [Rol] -> [Rol]
+todosLosDev [] = []
+todosLosDev (d:ds) = if esDev d && esSenior d
+                      then d : todosLosDev ds
+                      else todosLosDev ds
+
+esDev :: Rol -> Bool
+esDev (Developer s p) = True
+esDev _               = False
+ 
+esSenior :: Rol -> Bool
+esSenior (Developer Senior _)= True
+esSenior (Developer _ _)     = False
+esSenior _                   = False
+
+losQueTrabajanCon:: [Rol] -> [Proyecto] -> Int
+losQueTrabajanCon rs [] = 0
+losQueTrabajanCon rs (p:ps) = unoSi (perteneceARol p rs) + losQueTrabajanCon rs ps
+
+perteneceARol :: Proyecto -> [Rol] -> Bool
+perteneceARol p [] = False
+perteneceARol p (x:xs) = sonIguales (proyecto x) p || perteneceARol p xs
+
+
+proyecto :: Rol -> Proyecto
+proyecto (Developer _ p) = p
+proyecto (Management _ p) =  p
+
+-----------
+cantQueTrabajanEn :: [Proyecto] -> Empresa -> Int
+cantQueTrabajanEn ps (ConsEmpresa rs) =  losQueTrabajanCon rs ps
+
+----------
+asignadosPorProyecto :: Empresa -> [(Proyecto,Int)]
+asignadosPorProyecto (ConsEmpresa roles) = tuplaSinRepetidos (asignadosConProyecto roles)
+
+tuplaSinRepetidos :: [(Proyecto,Int)] -> [(Proyecto,Int)]
+tuplaSinRepetidos [] = []
+tuplaSinRepetidos (x:xs)= agregarSoloSiHaceFalta x (tuplaSinRepetidos xs)
+
+agregarSoloSiHaceFalta :: (Proyecto,Int) -> [(Proyecto,Int)] -> [(Proyecto,Int)]
+agregarSoloSiHaceFalta x [] = []
+agregarSoloSiHaceFalta x xs = if perteneceT x xs
+                               then xs
+                               else x:xs
+
+perteneceT :: (Proyecto,Int) -> [(Proyecto,Int)] -> Bool
+perteneceT p []     = False
+perteneceT p (x:xs) = sonIguales (primerElem p) (primerElem x) || perteneceT p xs
+
+primerElem:: (Proyecto,Int) -> Proyecto
+primerElem (p,n) = p
+
+asignadosConProyecto :: [Rol] -> [(Proyecto,Int)]
+asignadosConProyecto []     = []
+asignadosConProyecto (x:xs) = crearTupla (proyecto x) xs : asignadosConProyecto xs
+
+crearTupla :: Proyecto -> [Rol] -> (Proyecto, Int)
+crearTupla p []    = error "es una lista vacia"
+crearTupla p roles = (p, (cantP p roles))
+
+cantP :: Proyecto -> [Rol] -> Int
+cantP p []     = 0
+cantP p (x:xs) = unoSi (sonIguales (proyecto x) p) + cantP p xs
