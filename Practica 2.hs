@@ -151,11 +151,21 @@ tipoDe:: Pokemon -> TipoDePokemon
 tipoDe (ConsPokemon t n) = t
 
 losQueLeganan:: TipoDePokemon -> Entrenador -> Entrenador -> Int
-losQueLeganan t e1 (ConsEntrenador _ ys) = if (cantPokemonDe t e1) > 0
-                                            then aCuantosLeGana t ys
-                                            else 0
+losQueLeganan t (ConsEntrenador _ ps1) (ConsEntrenador _ ps2) = ganadores t ps1 ps2
 
+ganadores :: TipoDePokemon -> [Pokemon] -> [Pokemon] -> Int
+ganadores t [] _        = 0
+ganadores t (p:ps1) ps2 = unoSi(mismoTipo t (tipoDe p) && (leGananATodos p ps2)) + ganadores t ps1 ps2
 
+leGananATodos :: Pokemon -> [Pokemon] -> Bool
+leGananATodos p    []     = True
+leGananATodos p (pkm:pks) = superaA (tipoDe p) (tipoDe pkm) && (leGananATodos p pks)
+
+superaA :: TipoDePokemon -> TipoDePokemon -> Bool
+superaA Agua Fuego   = True
+superaA Fuego Planta = True
+superaA Planta Agua  = True
+superaA	_ _          = False
 aCuantosLeGana:: TipoDePokemon -> [Pokemon] -> Int
 aCuantosLeGana t []     = 0
 aCuantosLeGana t (x:xs) = unoSi (superaA t (tipoDe x)) + aCuantosLeGana t xs
@@ -229,8 +239,7 @@ esDev _               = False
  
 esSenior :: Rol -> Bool
 esSenior (Developer Senior _)= True
-esSenior (Developer _ _)     = False
-esSenior _                   = False
+esSenior      _              = False
 
 losQueTrabajanCon:: [Rol] -> [Proyecto] -> Int
 losQueTrabajanCon rs [] = 0
