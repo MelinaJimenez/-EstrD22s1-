@@ -18,15 +18,14 @@ esBolitaColor _ _       = False
 
 --------------------------
 poner::Color -> Celda -> Celda
-poner c CeldaVacia      = Bolita c CeldaVacia
-poner c (Bolita col cel)= Bolita col(poner c cel)
+poner c  cel= Bolita c cel
 
 ---------------------------
 sacar::Color -> Celda -> Celda
-sacar c CeldaVacia = CeldaVacia
+sacar c CeldaVacia       = CeldaVacia
 sacar c (Bolita col cel) = if(esBolitaColor c col)
-							 then cel	
-							 else Bolita col (sacar c cel)
+		           then cel	
+			   else Bolita col (sacar c cel)
 							 
 							 
 -----------------------------
@@ -39,8 +38,8 @@ data Objeto = Cacharro | Tesoro deriving Show
 data Camino = Fin | Cofre [Objeto] Camino | Nada Camino deriving Show 
 
 hayTesoro :: Camino -> Bool
-hayTesoro Fin              = False
-hayTesoro (Nada camino)      = hayTesoro camino
+hayTesoro Fin                 = False
+hayTesoro (Nada camino)       = hayTesoro camino
 hayTesoro (Cofre objs camino) = contieneTesoro objs || hayTesoro camino
 
 contieneTesoro :: [Objeto] -> Bool
@@ -54,10 +53,10 @@ esTesoro _      = False
 ---------------
 pasosHastaTesoro :: Camino -> Int
 pasosHastaTesoro Fin                 = 0
-pasosHastaTesoro (Nada camino)       = pasosHastaTesoro camino
+pasosHastaTesoro (Nada camino)       = 1 + pasosHastaTesoro camino
 pasosHastaTesoro (Cofre objs camino) = if contieneTesoro objs
-											then pasosHastaTesoro camino
-											else 1 + pasosHastaTesoro camino
+					then pasosHastaTesoro camino
+					else 1 + pasosHastaTesoro camino
 											
 ----------
 hayTesoroEn :: Int -> Camino -> Bool
@@ -77,8 +76,8 @@ avanzarCamino (Nada camino)    = camino
 
 ---------------------
 alMenosNTesoros :: Int -> Camino -> Bool
-alMenosNTesoros n   Fin         = n == 0
-alMenosNTesoros n (Nada camino) = alMenosNTesoros n camino
+alMenosNTesoros n   Fin              = n == 0
+alMenosNTesoros n (Nada camino)      = alMenosNTesoros n camino
 alMenosNTesoros n (Cofre obs camino) = (cantTesoro obs) >= n || (alMenosNTesoros (n - cantTesoro obs) camino)
 
 cantTesoro :: [Objeto] -> Int
@@ -114,8 +113,8 @@ perteneceT x (NodeT y t1 t2)= (x==y) || (perteneceT y t1)|| (perteneceT y t2)
 aparicionesT :: Eq a => a -> Tree a -> Int
 aparicionesT x    EmptyT       = 0
 aparicionesT x (NodeT y t1 t2) = if (x==y)
-									then 1 + (aparicionesT y t1) + (aparicionesT y t2)
-									else (aparicionesT y t1) + (aparicionesT y t2)
+				  then 1 + (aparicionesT y t1) + (aparicionesT y t2)
+				  else (aparicionesT y t1) + (aparicionesT y t2)
 									
 leaves :: Tree a -> [a]
 leaves    EmptyT               = []								
@@ -135,8 +134,8 @@ toList  EmptyT        = []
 toList (NodeT x t1 t2)= (toList t1) ++ [x] ++ (toList t2)
 
 levelN :: Int -> Tree a -> [a] 
-levelN _ EmptyT        = []
-levelN 0 (NodeT x _ _) = [x]
+levelN _ EmptyT          = []
+levelN 0 (NodeT x _ _)   = [x]
 levelN n (NodeT _ t1 t2) = levelN(n-1) t1 ++ levelN(n-1) t2
 
 listPerLevel :: Tree a -> [[a]]
@@ -145,11 +144,15 @@ listPerLevel t = losNiveles t (heightT t-1)
 losNiveles:: Tree a -> Int -> [[a]]
 losNiveles t 0 = [levelN 0 t]
 losNiveles t n = if n<0
-				  then []
-				  else levelN n t : losNiveles t (n-1)
+		   then []
+		   else levelN n t : losNiveles t (n-1)
 
---ramaMasLarga :: Tree a -> [a]
+ramaMasLarga :: Tree a -> [a]
 --Devuelve los elementos de la rama más larga del árbol
+ramaMasLarga EmptyT          = []
+ramaMasLarga (NodeT x t1 t2) = if heightT t1 > heightT t2
+                                 then x : ramaMasLarga t1
+				 else x :ramaMasLarga t2
 
 todosLosCaminos :: Tree a -> [[a]]
 todosLosCaminos   EmptyT       = []
@@ -173,10 +176,21 @@ eval (Neg e1 )    =  -(eval e1)
 simplificar :: ExpA -> ExpA
 simplificar (Valor n)   = Valor n
 simplificar (Sum e1 e2) = armarSuma (simplificar e1) (simplificar e2)
-simplificar (Prod e1 e2)= Prod (simplificar e1) (simplificar e2)
-simplificar (Neg e1 )   = Neg (simplificar e1)
+simplificar (Prod e1 e2)= armarProd (simplificar e1) (simplificar e2)
+simplificar (Neg e1 )   = armarNegacion (simplificar e1)
 
 armarSuma:: ExpA -> ExpA -> ExpA
 armarSuma (Valor 0) e2 = e2
 armarSuma e1 (Valor 0) = e1
 armarSuma e1 e2        = Sum e1 e2
+
+armarProd :: ExpA -> ExpA -> ExpA
+armarProd (Valor 0) e2 = (Valor 0)
+armarProd e1 (Valor 0) = (Valor 0)
+armarProd (Valor 1) e2 = e2
+armarProd e1 (Valor 1) = e1
+armarProd e1 e2        = Prod e1 e2
+
+armarNegacion:: ExpA -> ExpA
+armarNegacion  (Neg e1) = e1
+armarNegacion    e1     = e1
