@@ -238,8 +238,12 @@ esDev (Developer s p) = True
 esDev _               = False
  
 esSenior :: Rol -> Bool
-esSenior (Developer Senior _)= True
-esSenior      _              = False
+esSenior (Developer s p)= esSenioritySenior s
+esSenior      _         = False
+
+esSenioritySenior:: Seniority -> Bool
+esSenioritySenior Senior = True
+esSenioritySenior   _    = False
 
 losQueTrabajanCon:: [Rol] -> [Proyecto] -> Int
 losQueTrabajanCon rs [] = 0
@@ -254,39 +258,23 @@ proyecto :: Rol -> Proyecto
 proyecto (Developer _ p) = p
 proyecto (Management _ p) =  p
 
------------
 cantQueTrabajanEn :: [Proyecto] -> Empresa -> Int
-cantQueTrabajanEn ps (ConsEmpresa rs) =  losQueTrabajanCon rs ps
+cantQueTrabajanEn [] e = 0
+cantQueTrabajanEn (p:ps) e = cantidadDeProyectosEn p e + cantQueTrabajanEn ps e
 
-----------
+cantidadDeProyectosEn :: Proyecto -> Empresa -> Int
+cantidadDeProyectosEn p (ConsEmpresa roles ) = cantProyectosEnR p roles
+
+cantProyectosEnR :: Proyecto -> [Rol] -> Int
+cantProyectosEnR p [] = 0
+cantProyectosEnR p (r:rs) = unoSi (sonIguales p (proyecto r)) + cantProyectosEnR p rs
+
 asignadosPorProyecto :: Empresa -> [(Proyecto,Int)]
-asignadosPorProyecto (ConsEmpresa roles) = tuplaSinRepetidos (asignadosConProyecto roles)
+asignadosPorProyecto emp = proyectosAsig (proyectos emp) emp
 
-tuplaSinRepetidos :: [(Proyecto,Int)] -> [(Proyecto,Int)]
-tuplaSinRepetidos [] = []
-tuplaSinRepetidos (x:xs)= agregarSoloSiHaceFalta x (tuplaSinRepetidos xs)
 
-agregarSoloSiHaceFalta :: (Proyecto,Int) -> [(Proyecto,Int)] -> [(Proyecto,Int)]
-agregarSoloSiHaceFalta x [] = []
-agregarSoloSiHaceFalta x xs = if perteneceT x xs
-                               then xs
-                               else x:xs
+proyectosAsig :: [Proyecto] -> Empresa -> [(Proyecto,Int)]
+proyectosAsig [] e = []
+proyectosAsig (p:ps) e = (p, cantidadDeProyectosEn p e ) : proyectosAsig ps e
 
-perteneceT :: (Proyecto,Int) -> [(Proyecto,Int)] -> Bool
-perteneceT p []     = False
-perteneceT p (x:xs) = sonIguales (primerElem p) (primerElem x) || perteneceT p xs
 
-primerElem:: (Proyecto,Int) -> Proyecto
-primerElem (p,n) = p
-
-asignadosConProyecto :: [Rol] -> [(Proyecto,Int)]
-asignadosConProyecto []     = []
-asignadosConProyecto (x:xs) = crearTupla (proyecto x) xs : asignadosConProyecto xs
-
-crearTupla :: Proyecto -> [Rol] -> (Proyecto, Int)
-crearTupla p []    = error "es una lista vacia"
-crearTupla p roles = (p, (cantP p roles))
-
-cantP :: Proyecto -> [Rol] -> Int
-cantP p []     = 0
-cantP p (x:xs) = unoSi (sonIguales (proyecto x) p) + cantP p xs
