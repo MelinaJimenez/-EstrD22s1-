@@ -270,11 +270,17 @@ cantProyectosEnR p [] = 0
 cantProyectosEnR p (r:rs) = unoSi (sonIguales p (proyecto r)) + cantProyectosEnR p rs
 
 asignadosPorProyecto :: Empresa -> [(Proyecto,Int)]
-asignadosPorProyecto emp = proyectosAsig (proyectos emp) emp
+asignadosPorProyecto (ConsEmpresa rs) = proyectosAsig rs
 
+proyectosAsig :: [Rol] -> [(Proyecto,Int)]
+proyectosAsig   []     = []
+proyectosAsig (r:rs)   = agregarProyectos r (proyectosAsig rs)
 
-proyectosAsig :: [Proyecto] -> Empresa -> [(Proyecto,Int)]
-proyectosAsig [] e = []
-proyectosAsig (p:ps) e = (p, cantidadDeProyectosEn p e ) : proyectosAsig ps e
+agregarProyectos :: Rol -> [(Proyecto,Int)]-> [(Proyecto,Int)]
+agregarProyectos  r []    = [(proyectoDelRol r,1)]
+agregarProyectos r (p:ps) = if sonIguales (proyectoDelRol r) (fst p)
+                              then(proyectoDelRol r, (snd p + 1)) : ps
+			      else p : (agregarProyectos r ps)
+					
 
 
