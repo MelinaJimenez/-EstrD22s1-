@@ -31,7 +31,8 @@ sacar c (Bolita col cel) = if(esBolitaColor c col)
 -----------------------------
 ponerN:: Int -> Color -> Celda -> Celda
 ponerN 0 col celda = celda
-ponerN n col celda = ponerN(n-1) col (poner col celda)
+ponerN n col celda = poner col(ponerN(n-1) col celda)
+
 
 ------------Camino hacia el tesoro
 data Objeto = Cacharro | Tesoro deriving Show 
@@ -54,25 +55,15 @@ esTesoro _      = False
 pasosHastaTesoro :: Camino -> Int
 pasosHastaTesoro Fin                 = 0
 pasosHastaTesoro (Nada camino)       = 1 + pasosHastaTesoro camino
-pasosHastaTesoro (Cofre objs camino) = if contieneTesoro objs
-					then pasosHastaTesoro camino
-					else 1 + pasosHastaTesoro camino
+pasosHastaTesoro (Cofre objs camino) = unoSi (contieneTesoro objs) + pasosHastaTesoro camino
 											
 ----------
 hayTesoroEn :: Int -> Camino -> Bool
-hayTesoroEn 0 camino = hayTesoroEnActual camino
-hayTesoroEn n camino = hayTesoroEn (n-1) (avanzarCamino camino)
-
-
-hayTesoroEnActual:: Camino -> Bool
-hayTesoroEnActual (Cofre objs camino) = contieneTesoro objs
-hayTesoroEnActual      _              = False
-
-
-avanzarCamino :: Camino -> Camino
-avanzarCamino   Fin            = Fin
-avanzarCamino (Cofre _ camino) = camino
-avanzarCamino (Nada camino)    = camino 
+hayTesoroEn n    Fin              = False
+hayTesoroEn n (Nada camino)       = hayTesoroEn (n-1) camino
+hayTesoroEn n (Cofre objs camino) = if n ==0
+                                      then contieneTesoro objs
+			     	      else hayTesoroEn (n-1) camino
 
 ---------------------
 alMenosNTesoros :: Int -> Camino -> Bool
@@ -118,8 +109,13 @@ aparicionesT x (NodeT y t1 t2) = if (x==y)
 									
 leaves :: Tree a -> [a]
 leaves    EmptyT               = []								
-leaves (NodeT x EmptyT EmptyT) = [x] 
-leaves (NodeT x t1 t2)         = x :(leaves t1) ++ (leaves t2)
+leaves (NodeT x t1 t2)         = if esEmpty t1 && esEmpty t2
+                                  then x : leaves t1 ++ leaves t2
+                                  else leaves t1 ++ leaves t2
+								  
+esEmpty:: Tree a -> Bool
+esEmpty EmptyT = True
+esEmpty   _    = False
 
 heightT :: Tree a -> Int
 heightT  EmptyT         = 0
@@ -139,13 +135,13 @@ levelN 0 (NodeT x _ _)   = [x]
 levelN n (NodeT _ t1 t2) = levelN(n-1) t1 ++ levelN(n-1) t2
 
 listPerLevel :: Tree a -> [[a]]
-listPerLevel t = losNiveles t (heightT t-1)
+listPerLevel    EmptyT       = []
+listPerLevel (NodeT x t1 t2) =[x]: (juntarListas(listPerLevel t1) (listPerLevel t2))
 
-losNiveles:: Tree a -> Int -> [[a]]
-losNiveles t 0 = [levelN 0 t]
-losNiveles t n = if n<0
-		   then []
-		   else levelN n t : losNiveles t (n-1)
+juntarListas ::[[a]] -> [[a]] -> [[a]]
+juntarListas    xss      []    = xss
+juntarListas    []      yss    = yss
+juntarListas (xs:xss) (ys:yss) = (xs ++ ys) :  juntarListas xss yss
 
 ramaMasLarga :: Tree a -> [a]
 --Devuelve los elementos de la rama más larga del árbol
