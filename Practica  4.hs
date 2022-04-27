@@ -24,8 +24,8 @@ sacarJamon :: Pizza -> Pizza
 --Le saca los ingredientes que sean jamón a la pizza
 sacarJamon Prepizza         = Prepizza
 sacarJamon (Capa ing pizza) = if esJamon ing 
-								then(sacarJamon pizza)
-								else (Capa ing (sacarJamon pizza))
+				then(sacarJamon pizza)
+			        else (Capa ing (sacarJamon pizza))
 									 
 esJamon:: Ingrediente ->  Bool
 esJamon Jamon = True
@@ -49,10 +49,10 @@ duplicarAceitunas :: Pizza -> Pizza
 --Recorre cada ingrediente y si es aceitunas duplica su cantidad
 duplicarAceitunas Prepizza        = Prepizza
 duplicarAceitunas (Capa ing pizza)= if esAceituna ing
-									 then Capa(duplicarAceituna ing) (duplicarAceitunas pizza)
-									 else (Capa ing(duplicarAceitunas pizza))
+				      then Capa(duplicarAceituna ing) (duplicarAceitunas pizza)
+				      else (Capa ing(duplicarAceitunas pizza))
 									 
-duplicarAceituna ::	Ingrediente -> Ingrediente
+duplicarAceituna :: Ingrediente -> Ingrediente
 duplicarAceituna  (Aceitunas n)  = Aceitunas (n*2) 
 
 esAceituna :: Ingrediente -> Bool
@@ -63,12 +63,9 @@ esAceituna  _            = False
 cantCapasPorPizza :: [Pizza] -> [(Int, Pizza)]
 --Dada una lista de pizzas devuelve un par donde la primera componente es la cantidad de
 --ingredientes de la pizza, y la respectiva pizza como segunda componente.	
-cantCapasPorPizza []    =[] --DUDO
-cantCapasPorPizza (p:ps)=  (cantCapasDePizza p): cantCapasPorPizza ps		
-
-cantCapasDePizza:: Pizza -> (Int, Pizza)
-cantCapasDePizza Prepizza         = (0,Prepizza)
-cantCapasDePizza (Capa ing pizza) = cantCapasDePizza pizza 			
+cantCapasPorPizza []    =[] 
+cantCapasPorPizza (p:ps)=  (cantidadDeCapas p, p): cantCapasPorPizza ps		
+		
 
 -------------------Mapa de tesoros (con bifurcaciones)
 --Un mapa de tesoros es un árbol con bifurcaciones que terminan en cofres. Cada bifurcación y
