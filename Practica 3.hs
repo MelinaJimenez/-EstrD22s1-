@@ -76,10 +76,17 @@ cantTesoro    []    = 0
 cantTesoro (o: objs)= unoSi(esTesoro o) +(cantTesoro objs)
 
 
---(desafío) cantTesorosEntre :: Int -> Int -> Camino -> Int
+cantTesorosEntre :: Int -> Int -> Camino -> Int
 --Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango. Por ejemplo, si
 --el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están
---incluidos tanto 3 como 5 en el resultado											
+--incluidos tanto 3 como 5 en el resultado	
+cantTesorosEntre n m Fin                 = 0
+cantTesorosEntre 0 0 (Nada camino)       = cantTesorosEntre 0 0 camino
+cantTesorosEntre n m (Nada camino)       = cantTesorosEntre (n-1) (m-1) camino
+cantTesorosEntre 0 0 (Cofre obsj camino) = cantTesoro obsj
+cantTesorosEntre 0 m (Cofre obsj camino) = cantTesoro obsj + cantTesorosEntre 0 (m-1) camino
+cantTesorosEntre n 0 (Cofre obsj camino) = cantTesoro obsj + cantTesorosEntre (n-1) 0 camino
+cantTesorosEntre n m (Cofre obsj camino) = cantTesorosEntre (n-1) (m-1) camino
 
 
 ----------------- Árboles binarios
@@ -144,11 +151,17 @@ juntarListas    []      yss    = yss
 juntarListas (xs:xss) (ys:yss) = (xs ++ ys) :  juntarListas xss yss
 
 ramaMasLarga :: Tree a -> [a]
---Devuelve los elementos de la rama más larga del árbol
-ramaMasLarga EmptyT          = []
-ramaMasLarga (NodeT x t1 t2) = if heightT t1 > heightT t2
-                                 then x : ramaMasLarga t1
-				 else x :ramaMasLarga t2
+ramaMasLarga  EmptyT         = []
+ramaMasLarga (NodeT x t1 t2) =   x: elegirRama (ramaMasLarga t1) (ramaMasLarga t2)
+                                
+elegirRama:: [a] -> [a]-> [a]
+elegirRama xs ys =  if longitud xs > longitud ys
+                       then xs
+					   else ys
+
+longitud :: [a] -> Int
+longitud []     = 0
+longitud (x:xs) = 1 + longitud xs
 
 todosLosCaminos :: Tree a -> [[a]]
 todosLosCaminos   EmptyT       = []
@@ -173,7 +186,7 @@ simplificar :: ExpA -> ExpA
 simplificar (Valor n)   = Valor n
 simplificar (Sum e1 e2) = armarSuma (simplificar e1) (simplificar e2)
 simplificar (Prod e1 e2)= armarProd (simplificar e1) (simplificar e2)
-simplificar (Neg e1 )   = armarNegacion (simplificar e1)
+simplificar (Neg e1 )   = e1
 
 armarSuma:: ExpA -> ExpA -> ExpA
 armarSuma (Valor 0) e2 = e2
@@ -187,6 +200,4 @@ armarProd (Valor 1) e2 = e2
 armarProd e1 (Valor 1) = e1
 armarProd e1 e2        = Prod e1 e2
 
-armarNegacion:: ExpA -> ExpA
-armarNegacion  (Neg e1) = e1
-armarNegacion    e1     = e1
+
