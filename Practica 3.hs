@@ -186,7 +186,7 @@ simplificar :: ExpA -> ExpA
 simplificar (Valor n)   = Valor n
 simplificar (Sum e1 e2) = armarSuma (simplificar e1) (simplificar e2)
 simplificar (Prod e1 e2)= armarProd (simplificar e1) (simplificar e2)
-simplificar (Neg e1 )   = e1
+simplificar (Neg e1 )   = armarNegacion (simplificar e1)
 
 armarSuma:: ExpA -> ExpA -> ExpA
 armarSuma (Valor 0) e2 = e2
@@ -200,4 +200,7 @@ armarProd (Valor 1) e2 = e2
 armarProd e1 (Valor 1) = e1
 armarProd e1 e2        = Prod e1 e2
 
+armarNegacion :: ExpA -> ExpA
+armarNegacion (Neg exp) = exp
+armarNegacion  exp      = (Neg exp)
 
