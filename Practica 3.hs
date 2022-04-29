@@ -79,14 +79,18 @@ cantTesoro (o: objs)= unoSi(esTesoro o) +(cantTesoro objs)
 cantTesorosEntre :: Int -> Int -> Camino -> Int
 --Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango. Por ejemplo, si
 --el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están
---incluidos tanto 3 como 5 en el resultado	
-cantTesorosEntre n m Fin                 = 0
-cantTesorosEntre 0 0 (Nada camino)       = cantTesorosEntre 0 0 camino
-cantTesorosEntre n m (Nada camino)       = cantTesorosEntre (n-1) (m-1) camino
-cantTesorosEntre 0 0 (Cofre obsj camino) = cantTesoro obsj
-cantTesorosEntre 0 m (Cofre obsj camino) = cantTesoro obsj + cantTesorosEntre 0 (m-1) camino
-cantTesorosEntre n 0 (Cofre obsj camino) = cantTesoro obsj + cantTesorosEntre (n-1) 0 camino
-cantTesorosEntre n m (Cofre obsj camino) = cantTesorosEntre (n-1) (m-1) camino
+--incluidos tanto 3 como 5 en el resultado.
+cantTesorosEntre n1 n2 Fin                = 0
+cantTesorosEntre n1 n2 (Nada camino)      = if n1 == 0 && n2 == 0
+                                              then 0
+                                               else cantTesorosEntre (darPaso n1) (darPaso n2) camino
+cantTesorosEntre n1 n2 (Cofre obs camino) = if n1 == 0 && n2 == 0
+                                             then cantTesoro obs
+                                              else cantTesorosEntre (darPaso n1) (darPaso n2) camino
+
+darPaso :: Int -> Int
+darPaso 0 = 0
+darPaso n = n-1
 
 
 ----------------- Árboles binarios
@@ -117,7 +121,7 @@ aparicionesT x (NodeT y t1 t2) = if (x==y)
 leaves :: Tree a -> [a]
 leaves    EmptyT               = []								
 leaves (NodeT x t1 t2)         = if esEmpty t1 && esEmpty t2
-                                  then x : leaves t1 ++ leaves t2
+                                  then [x]
                                   else leaves t1 ++ leaves t2
 								  
 esEmpty:: Tree a -> Bool
