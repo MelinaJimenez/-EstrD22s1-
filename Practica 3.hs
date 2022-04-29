@@ -53,9 +53,15 @@ esTesoro _      = False
 
 ---------------
 pasosHastaTesoro :: Camino -> Int
-pasosHastaTesoro Fin                 = 0
-pasosHastaTesoro (Nada camino)       = 1 + pasosHastaTesoro camino
-pasosHastaTesoro (Cofre objs camino) = unoSi (contieneTesoro objs) + pasosHastaTesoro camino
+pasosHastaTesoro  Fin              = 0
+pasosHastaTesoro  (Nada camino)    = 1 + pasosHastaTesoro camino
+pasosHastaTesoro(Cofre obs camino) =  totalDePasos obs (pasosHastaTesoro camino)
+
+
+totalDePasos:: [Objeto] -> Int -> Int
+totalDePasos obs n = if contieneTesoro obs
+                      then 0
+                      else 1 + n
 											
 ----------
 hayTesoroEn :: Int -> Camino -> Bool
